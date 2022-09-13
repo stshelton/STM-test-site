@@ -104,7 +104,7 @@ export default function STMTestView() {
                     {LoadingUi()}
 
                 </button> */}
-                <label for="mint">Mint Petra</label>
+                <label htmlFor="mint">Mint Petra</label>
                 <input id="mint amount" placeholder="0.1"></input>
 
                 <button
