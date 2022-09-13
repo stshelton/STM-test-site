@@ -5,11 +5,11 @@ const nextConfig = {
     rules: {
         "react/no-unknown-property": ["error", { ignore: ["jsx"] }],
     },
-    experimental: {
-        images: {
-            unoptimized: true,
-        },
+
+    images: {
+        unoptimized: true,
     },
+
     assetPrefix: "./",
 }
 
