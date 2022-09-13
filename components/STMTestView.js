@@ -7,9 +7,9 @@ import { useNotification } from "web3uikit"
 
 export default function STMTestView() {
     const { chainId: chainIdHex, isWeb3Enabled, account } = useMoralis() //chain id gives us the hex value
-    console.log(`chainIdHex: ${chainIdHex})`)
+    //console.log(`chainIdHex: ${chainIdHex})`)
     const chainId = parseInt(chainIdHex)
-    console.log(`chainId: ${chainId}`)
+    //console.log(`chainId: ${chainId}`)
     const raffleAddress =
         chainId in contractAddresses ? contractAddresses[chainId][0] : null
 
@@ -26,12 +26,36 @@ export default function STMTestView() {
     useEffect(() => {
         if (isWeb3Enabled) {
             console.log(`raffleaddress: ${raffleAddress}`)
-            console.log(account)
+            console.log(`current connected ${account}`)
 
             setAddresToSendPetra(account)
             updateUi()
         }
     }, [isWeb3Enabled])
+
+    useEffect(() => {
+        async function getMinterRole() {
+            if (minterRole.length > 0) {
+                const minterRoleAddress = await getRoleMember()
+                console.log(minterRoleAddress)
+                setMinterRoleAddress(minterRoleAddress)
+            }
+        }
+        getMinterRole()
+    }, [minterRole])
+
+    useEffect(() => {
+        async function checkMintAmount() {
+            console.log(`amount to mint ${amountToMint}`)
+            if (amountToMint > 0.0) {
+                await mintPetra({
+                    onSuccess: handleSuccess, //tx response is passed by default when not adding ()
+                    onError: handleMintError,
+                })
+            }
+        }
+        checkMintAmount()
+    }, [amountToMint])
 
     const { runContractFunction: getTotalSupply } = useWeb3Contract({
         abi: abi,
@@ -78,13 +102,10 @@ export default function STMTestView() {
 
         const minterRole = (await getMinterRole()).toString()
         setMinterRole(minterRole)
+        console.log(minterRole)
 
         const nameOfCoin = (await getNameOfToken()).toString()
         setName(nameOfCoin)
-
-        const minterRoleAddress = await getRoleMember()
-        console.log(minterRoleAddress)
-        setMinterRoleAddress(minterRoleAddress)
     }
 
     function ContractAddressExistsUI() {
@@ -104,8 +125,9 @@ export default function STMTestView() {
                     {LoadingUi()}
 
                 </button> */}
-                <label htmlFor="mint">Mint Petra</label>
-                <input id="mint amount" placeholder="0.1"></input>
+
+                <label htmlFor="mint">Mint STM</label>
+                <input id="mint amount" placeholder="0.0"></input>
 
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
@@ -114,25 +136,65 @@ export default function STMTestView() {
                         const amountToFund =
                             document.getElementById("mint amount").value *
                             10 ** 18
-                        setAmountToMint(amountToFund.toString())
+
+                        if (amountToFund <= 0) {
+                            handleNewNotification(
+                                "Error",
+                                "Please enter a number greater then 0"
+                            )
+                            return
+                        }
+                        if (amountToMint == amountToFund) {
+                            await mintPetra({
+                                onSuccess: handleSuccess, //tx response is passed by default when not adding ()
+                                onError: handleMintError,
+                            })
+                        } else {
+                            setAmountToMint(amountToFund.toString())
+                        }
+
                         console.log(amountToMint)
                         console.log(addressToSendPetra)
-                        await mintPetra({
-                            onSuccess: handleSuccess, //tx response is passed by default when not adding ()
-                            onError: handleMintError,
-                        })
                     }}
                     //disabled={isFetching || isLoading}
                 >
                     {LoadingUi()}
                 </button>
+
+                <div>
+                    <label>Change newly minted STM receipt address:</label>
+                    <input id="receiptAddress"></input>
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                        onClick={async function () {
+                            //console.log(enterRaffle)
+                            const receiptAddress = document
+                                .getElementById("receiptAddress")
+                                .value.toString()
+
+                            setAddresToSendPetra(receiptAddress)
+
+                            console.log(amountToMint)
+                            console.log(addressToSendPetra)
+                        }}
+                        //disabled={isFetching || isLoading}
+                    >
+                        Change Address
+                        {/* {LoadingUi()} */}
+                    </button>
+                </div>
                 <div>
                     Total Current Supply:
                     {currentSupply / 10 ** 18} {name}
                 </div>
+
                 <div>
-                    Minter Address:
+                    Minter Role Address:
                     {minterRoleAddress}
+                </div>
+                <div>
+                    <label>Address to receive minted STM:</label>
+                    {addressToSendPetra}
                 </div>
             </div>
         )
@@ -149,9 +211,16 @@ export default function STMTestView() {
     const handleMintError = async function (error) {
         //console.log(error)
         console.log("mint handel error")
-        console.log(error.data)
-        console.log(error.data.message)
-        handleNewNotification("Error", error.data.message)
+        console.log(error)
+        // console.log(error.data)
+        // console.log(error.data.message)
+        if (typeof error.data != "undefined") {
+            if (typeof error.data.message != "undefined") {
+                handleNewNotification("Error", error.data.message)
+            }
+        } else {
+            handleNewNotification("Error")
+        }
     }
 
     //on success doesnt confirm that block has a confirmation just checks to see if transaction was sent to metamask
@@ -177,7 +246,6 @@ export default function STMTestView() {
 
     return (
         <div className="p-5">
-            Petra test
             {raffleAddress
                 ? ContractAddressExistsUI()
                 : RaffleAddressDoesntExistUI()}
@@ -186,5 +254,10 @@ export default function STMTestView() {
 }
 
 function RaffleAddressDoesntExistUI() {
-    return <div>No Raffle Address Deteched</div>
+    return (
+        <div>
+            No Smart Minting Smart Contract Detected. Please connect to
+            blockchain
+        </div>
+    )
 }
