@@ -140,9 +140,9 @@ export default function STMTestView() {
 
     function ContractAddressExistsUI() {
         return (
-            <div class="space-y-10">
+            <div className="space-y-10">
                 {/* <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                    classNameName="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                     onClick={async function () {
                         console.log(enterRaffle)
                         await enterRaffle({
@@ -156,15 +156,15 @@ export default function STMTestView() {
 
                 </button> */}
 
-                <div class="space-y-2">
+                <div classNameName="space-y-2">
                     <label htmlFor="mint">Enter Interchange Fee</label>
                     <input
-                        class={editableTextStyle}
+                        className={editableTextStyle}
                         id="mint amount"
                         placeholder="0.0"
                     ></input>
                     <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                        classNameName="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                         onClick={async function () {
                             //console.log(enterRaffle)
                             const amountToFund =
@@ -196,14 +196,14 @@ export default function STMTestView() {
                     </button>
                 </div>
 
-                <div class="space-y-2">
+                <div className="space-y-2">
                     <label>Change newly minted STM receipt address:</label>
                     <input
-                        class={editableTextStyle}
+                        className={editableTextStyle}
                         id="receiptAddress"
                     ></input>
                     <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                        classNameName="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                         onClick={async function () {
                             //console.log(enterRaffle)
                             const receiptAddress = document
@@ -222,34 +222,38 @@ export default function STMTestView() {
                     </button>
                 </div>
 
-                <div class="space-y-2">
+                <div className="space-y-2">
                     Current Connected Wallets Balance:
-                    <div class={nonEditableTextStyle}>
+                    <div className={nonEditableTextStyle}>
                         {currentWalletsBalance / 10 ** 18} {name}
                     </div>
                 </div>
 
-                <div class="space-y-2">
+                <div className="space-y-2">
                     Total Current Supply:
-                    <div class={nonEditableTextStyle}>
+                    <div className={nonEditableTextStyle}>
                         {currentSupply / 10 ** 18} {name}
                     </div>
                 </div>
 
-                <div class="space-y-2">
+                <div className="space-y-2">
                     Supply Cap:
-                    <div class={nonEditableTextStyle}>
+                    <div className={nonEditableTextStyle}>
                         {capAmount / 10 ** 18} {name}
                     </div>
                 </div>
 
                 <div>
                     Minter Role Address:
-                    <div class={nonEditableTextStyle}>{minterRoleAddress}</div>
+                    <div className={nonEditableTextStyle}>
+                        {minterRoleAddress}
+                    </div>
                 </div>
                 <div>
                     <label>Address to receive minted STM:</label>
-                    <div class={nonEditableTextStyle}>{addressToSendPetra}</div>
+                    <div className={nonEditableTextStyle}>
+                        {addressToSendPetra}
+                    </div>
                 </div>
             </div>
         )
@@ -257,7 +261,7 @@ export default function STMTestView() {
 
     function LoadingUi() {
         return isFetching || isLoading ? (
-            <div className="animate-spin spinner-border h-10 w-10 border-b-2 rounded-full"></div>
+            <div classNameName="animate-spin spinner-border h-10 w-10 border-b-2 rounded-full"></div>
         ) : (
             <div> Mint </div>
         )
@@ -300,7 +304,7 @@ export default function STMTestView() {
     }
 
     return (
-        <div className="p-5">
+        <div classNameName="p-5">
             {raffleAddress
                 ? ContractAddressExistsUI()
                 : RaffleAddressDoesntExistUI()}
