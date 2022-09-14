@@ -156,7 +156,7 @@ export default function STMTestView() {
 
                 </button> */}
 
-                <div classNameName="space-y-2">
+                <div className="space-y-2 pt-10">
                     <label htmlFor="mint">Enter Interchange Fee</label>
                     <input
                         className={editableTextStyle}
@@ -164,7 +164,7 @@ export default function STMTestView() {
                         placeholder="0.0"
                     ></input>
                     <button
-                        classNameName="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                         onClick={async function () {
                             //console.log(enterRaffle)
                             const amountToFund =
@@ -203,7 +203,7 @@ export default function STMTestView() {
                         id="receiptAddress"
                     ></input>
                     <button
-                        classNameName="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                         onClick={async function () {
                             //console.log(enterRaffle)
                             const receiptAddress = document
