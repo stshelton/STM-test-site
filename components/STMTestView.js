@@ -20,8 +20,16 @@ export default function STMTestView() {
     const [amountToMint, setAmountToMint] = useState("")
     const [addressToSendPetra, setAddresToSendPetra] = useState("")
     const [minterRoleAddress, setMinterRoleAddress] = useState("")
+    const [capAmount, setCapAmount] = useState("")
+    const [currentWalletsBalance, setCurrentWalletBalance] = useState("")
 
     const dispatch = useNotification()
+
+    //styling
+    const nonEditableTextStyle =
+        "appearance-none block w-6/12 bg-blue-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+    const editableTextStyle =
+        "appearance-none block w-6/12 bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 
     useEffect(() => {
         if (isWeb3Enabled) {
@@ -78,6 +86,22 @@ export default function STMTestView() {
         params: {},
     })
 
+    const { runContractFunction: getCapAmount } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress,
+        functionName: "getCapAmount",
+        params: {},
+    })
+
+    const { runContractFunction: getBalanceOfCurrentAccount } = useWeb3Contract(
+        {
+            abi: abi,
+            contractAddress: raffleAddress,
+            functionName: "balanceOf",
+            params: { account: account },
+        }
+    )
+
     const {
         runContractFunction: mintPetra,
         isLoading,
@@ -106,11 +130,17 @@ export default function STMTestView() {
 
         const nameOfCoin = (await getNameOfToken()).toString()
         setName(nameOfCoin)
+
+        const capAmount = (await getCapAmount()).toString()
+        setCapAmount(capAmount)
+
+        const currentBalance = (await getBalanceOfCurrentAccount()).toString()
+        setCurrentWalletBalance(currentBalance)
     }
 
     function ContractAddressExistsUI() {
         return (
-            <div>
+            <div class="space-y-10">
                 {/* <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                     onClick={async function () {
@@ -126,44 +156,52 @@ export default function STMTestView() {
 
                 </button> */}
 
-                <label htmlFor="mint">Mint STM</label>
-                <input id="mint amount" placeholder="0.0"></input>
+                <div class="space-y-2">
+                    <label htmlFor="mint">Enter Interchange Fee</label>
+                    <input
+                        class={editableTextStyle}
+                        id="mint amount"
+                        placeholder="0.0"
+                    ></input>
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
+                        onClick={async function () {
+                            //console.log(enterRaffle)
+                            const amountToFund =
+                                document.getElementById("mint amount").value *
+                                10 ** 18
 
-                <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
-                    onClick={async function () {
-                        //console.log(enterRaffle)
-                        const amountToFund =
-                            document.getElementById("mint amount").value *
-                            10 ** 18
+                            if (amountToFund <= 0) {
+                                handleNewNotification(
+                                    "Error",
+                                    "Please enter a number greater then 0"
+                                )
+                                return
+                            }
+                            if (amountToMint == amountToFund) {
+                                await mintPetra({
+                                    onSuccess: handleSuccess, //tx response is passed by default when not adding ()
+                                    onError: handleMintError,
+                                })
+                            } else {
+                                setAmountToMint(amountToFund.toString())
+                            }
 
-                        if (amountToFund <= 0) {
-                            handleNewNotification(
-                                "Error",
-                                "Please enter a number greater then 0"
-                            )
-                            return
-                        }
-                        if (amountToMint == amountToFund) {
-                            await mintPetra({
-                                onSuccess: handleSuccess, //tx response is passed by default when not adding ()
-                                onError: handleMintError,
-                            })
-                        } else {
-                            setAmountToMint(amountToFund.toString())
-                        }
+                            console.log(amountToMint)
+                            console.log(addressToSendPetra)
+                        }}
+                        //disabled={isFetching || isLoading}
+                    >
+                        {LoadingUi()}
+                    </button>
+                </div>
 
-                        console.log(amountToMint)
-                        console.log(addressToSendPetra)
-                    }}
-                    //disabled={isFetching || isLoading}
-                >
-                    {LoadingUi()}
-                </button>
-
-                <div>
+                <div class="space-y-2">
                     <label>Change newly minted STM receipt address:</label>
-                    <input id="receiptAddress"></input>
+                    <input
+                        class={editableTextStyle}
+                        id="receiptAddress"
+                    ></input>
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-gold py-2 px-4 rounded ml-auto"
                         onClick={async function () {
@@ -183,18 +221,35 @@ export default function STMTestView() {
                         {/* {LoadingUi()} */}
                     </button>
                 </div>
-                <div>
+
+                <div class="space-y-2">
+                    Current Connected Wallets Balance:
+                    <div class={nonEditableTextStyle}>
+                        {currentWalletsBalance / 10 ** 18} {name}
+                    </div>
+                </div>
+
+                <div class="space-y-2">
                     Total Current Supply:
-                    {currentSupply / 10 ** 18} {name}
+                    <div class={nonEditableTextStyle}>
+                        {currentSupply / 10 ** 18} {name}
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    Supply Cap:
+                    <div class={nonEditableTextStyle}>
+                        {capAmount / 10 ** 18} {name}
+                    </div>
                 </div>
 
                 <div>
                     Minter Role Address:
-                    {minterRoleAddress}
+                    <div class={nonEditableTextStyle}>{minterRoleAddress}</div>
                 </div>
                 <div>
                     <label>Address to receive minted STM:</label>
-                    {addressToSendPetra}
+                    <div class={nonEditableTextStyle}>{addressToSendPetra}</div>
                 </div>
             </div>
         )
@@ -202,7 +257,7 @@ export default function STMTestView() {
 
     function LoadingUi() {
         return isFetching || isLoading ? (
-            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+            <div className="animate-spin spinner-border h-10 w-10 border-b-2 rounded-full"></div>
         ) : (
             <div> Mint </div>
         )
