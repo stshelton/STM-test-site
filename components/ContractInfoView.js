@@ -137,7 +137,7 @@ export default function ContractInfoView() {
         abi: abi,
         contractAddress: raffleAddress,
         functionName: "transfer",
-        params: { to: addressToSendPetra, amount: amountToMint },
+        params: { to: recipientAddressForTransfer, amount: amountToMint },
     })
 
     const { runContractFunction: getMinterRoleMember } = useWeb3Contract({
@@ -234,9 +234,12 @@ export default function ContractInfoView() {
                             setRecipientAddressForTransfer(transferRecipient)
 
                             const amountToFund =
-                                document.getElementById("transfer amount")
-                                    .value *
-                                10 ** 18
+                                BigInt(
+                                    document.getElementById("transfer amount")
+                                        .value
+                                ) * BigInt(10 ** 18)
+
+                            console.log(`amount to transfer ${amountToFund}`)
 
                             if (amountToFund <= 0) {
                                 handleNewNotification(
